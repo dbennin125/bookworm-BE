@@ -47,5 +47,29 @@ describe('book routes', () => {
         expect(res.body).toEqual(oneBook);
       });
   });
+  it('updates a specific book via PATCH', async() => {
+    const oneBook = prepare(await Book.findOne());
+
+    return request(app)
+      .patch(`/api/v1/books/${oneBook._id}`)
+      .send({
+        description: 'Ok, So maybe this book wasn\'t so good'
+      })
+      .then(res => {
+        expect(res.body).toEqual({
+          ...oneBook,
+          description: 'Ok, So maybe this book wasn\'t so good'
+        });
+      });
+  });
+  it('deletes a specific book by id VIA DELETE route', async() => {
+    const deleteBook = prepare(await Book.findOne());
+
+    return request(app)
+      .delete(`/api/v1/books/${deleteBook._id}`)
+      .then(res => {
+        expect(res.body).toEqual(deleteBook);
+      });
+  });
 
 });
