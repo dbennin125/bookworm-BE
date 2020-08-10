@@ -7,6 +7,7 @@ const connect = require('../lib/utils/connect');
 // const request = require('supertest');
 // const app = require('../lib/app');
 const seed = require('./seed');
+const { model } = require('../lib/models/Book');
 
 describe('bookworm routes', () => {
   beforeAll(async() => { 
@@ -27,3 +28,15 @@ describe('bookworm routes', () => {
     return mongod.stop();
   });
 });
+
+const prepareOne = model => JSON.parse(JSON.stringify(model));
+const prepareMany = models => models.map(prepareOne);
+
+const prepare = model => {
+  if(Array.isArray(model)) return prepareMany(model);
+  return prepareOne(model);
+};
+
+module.exports = {
+  prepare
+};
