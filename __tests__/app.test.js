@@ -27,4 +27,25 @@ describe('book routes', () => {
         });
       });
   });
+
+  it('gets all books via GET route', async() => {
+    const books = prepare(await Book.find());
+
+    return request(app)
+      .get('/api/v1/books')
+      .then(res => {
+        expect(res.body).toEqual(books);
+      });
+  });
+
+  it('gets a specific book by id VIA GET', async() => {
+    const oneBook = prepare(await Book.findOne());
+
+    return request(app)
+      .get(`/api/v1/books/${oneBook._id}`)
+      .then(res => {
+        expect(res.body).toEqual(oneBook);
+      });
+  });
+
 });
