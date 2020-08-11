@@ -8,6 +8,7 @@ const connect = require('../lib/utils/connect');
 const request = require('supertest');
 const app = require('../lib/app');
 const seed = require('./seed');
+const User = require('../lib/models/User');
 
 
 
@@ -24,6 +25,16 @@ beforeEach(() => {
   return seed();
 });
 
+const agent = request.agent(app);
+beforeEach(() => {
+  return agent
+    .post('/api/v1/auth/login')
+    .send({
+      email: 'test0@test.com',
+      password: 'pass1234'
+    });
+});
+
 afterAll(async() => {
   await mongoose.connection.close();
   return mongod.stop();
@@ -38,6 +49,10 @@ const prepare = model => {
   return prepareOne(model);
 };
 
+const getLoggedInUser = () => User.findOne({ email: 'test0@test.com' });
+
 module.exports = {
-  prepare
+  prepare, 
+  agent, 
+  getLoggedInUser
 };
