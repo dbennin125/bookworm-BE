@@ -48,4 +48,22 @@ describe('auth routes', () => {
       });
   });
 
+  it('verifies a signed in user', () => {
+    const agent = request.agent(app);
+   
+    return agent
+      .post('/api/v1/auth/signup')
+      .send({
+        email: 'test0@test.com',
+        password: 'pass1234',
+      })
+      .then(() => agent.get('/api/v1/auth/verify'))
+      .then(res => {
+        expect(res.body).toEqual({
+          _id: expect.anything(),
+          email: 'test0@test.com',
+        });
+      });
+  });
+
 });
