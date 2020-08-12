@@ -5,13 +5,15 @@ const request = require('supertest');
 const app = require('../lib/app');
 
 const Book = require('../lib/models/Book');
-const { prepare } = require('../data-helpers/data-helpers');
+const { prepare, agent, getLoggedInUser } = require('../data-helpers/data-helpers');
 
 
 describe('book routes', () => {
   
   it('creates a book with VIA Post', async() => {
-    return request(app)
+    const loggedInUser = await getLoggedInUser();
+    
+    return agent
       .post('/api/v1/books')
       .send({
         title: 'new title',
@@ -22,6 +24,7 @@ describe('book routes', () => {
       .then(res => {
         expect(res.body).toEqual({
           _id: expect.anything(),
+          user: loggedInUser.id,
           title: 'new title',
           author: 'best author',
           pages: 50,
@@ -52,7 +55,7 @@ describe('book routes', () => {
   it('updates a specific book via PATCH', async() => {
     const oneBook = prepare(await Book.findOne());
 
-    return request(app)
+    return agent
       .patch(`/api/v1/books/${oneBook._id}`)
       .send({
         description: 'Ok, So maybe this book wasn\'t so good'
@@ -67,7 +70,7 @@ describe('book routes', () => {
   it('deletes a specific book by id VIA DELETE route', async() => {
     const deleteBook = prepare(await Book.findOne());
 
-    return request(app)
+    return agent
       .delete(`/api/v1/books/${deleteBook._id}`)
       .then(res => {
         expect(res.body).toEqual(deleteBook);
