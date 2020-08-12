@@ -27,4 +27,25 @@ describe('auth routes', () => {
       });
   });
 
+  it('logs in a user', async() => {
+    await User.create({
+      email: 'test0@test.com',
+      password: 'pass1234',
+      userImage: 'https://image.com'
+    });
+    return request(app)
+      .post('/api/v1/auth/login')
+      .send({
+        email: 'test0@test.com',
+        password: 'pass1234',
+      })
+      .then(res => {
+        expect(res.body).toEqual({
+          _id: expect.anything(),
+          email: 'test0@test.com',
+          userImage: 'https://image.com'
+        });
+      });
+  });
+
 });
