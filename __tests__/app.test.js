@@ -5,15 +5,18 @@ const request = require('supertest');
 const app = require('../lib/app');
 
 const Book = require('../lib/models/Book');
-const { prepare } = require('../data-helpers/data-helpers');
+const { prepare, agent, getLoggedInUser } = require('../data-helpers/data-helpers');
 
 
 describe('book routes', () => {
   
   it('creates a book with VIA Post', async() => {
-    return request(app)
+    const loggedInUser = await getLoggedInUser();
+    
+    return agent
       .post('/api/v1/books')
       .send({
+        user: loggedInUser._id,
         title: 'new title',
         author: 'best author',
         pages: 50,
@@ -22,6 +25,7 @@ describe('book routes', () => {
       .then(res => {
         expect(res.body).toEqual({
           _id: expect.anything(),
+          user: loggedInUser.id,
           title: 'new title',
           author: 'best author',
           pages: 50,
@@ -31,9 +35,10 @@ describe('book routes', () => {
   });
 
   it('gets all books via GET route', async() => {
-    const books = prepare(await Book.find());
+    const loggedInUser = await getLoggedInUser();
+    const books = prepare(await Book.find({ user: loggedInUser._id }));
 
-    return request(app)
+    return agent
       .get('/api/v1/books')
       .then(res => {
         expect(res.body).toEqual(books);
@@ -41,18 +46,20 @@ describe('book routes', () => {
   });
 
   it('gets a specific book by id VIA GET', async() => {
-    const oneBook = prepare(await Book.findOne());
+    const loggedInUser = await getLoggedInUser();
+    const oneBook = prepare(await Book.findOne({ user: loggedInUser._id }));
 
-    return request(app)
+    return agent
       .get(`/api/v1/books/${oneBook._id}`)
       .then(res => {
         expect(res.body).toEqual(oneBook);
       });
   });
   it('updates a specific book via PATCH', async() => {
-    const oneBook = prepare(await Book.findOne());
+    const loggedInUser = await getLoggedInUser();
+    const oneBook = prepare(await Book.findOne({ user: loggedInUser._id }));
 
-    return request(app)
+    return agent
       .patch(`/api/v1/books/${oneBook._id}`)
       .send({
         description: 'Ok, So maybe this book wasn\'t so good'
@@ -65,9 +72,10 @@ describe('book routes', () => {
       });
   });
   it('deletes a specific book by id VIA DELETE route', async() => {
-    const deleteBook = prepare(await Book.findOne());
+    const loggedInUser = await getLoggedInUser();
+    const deleteBook = prepare(await Book.findOne({ user: loggedInUser._id }));
 
-    return request(app)
+    return agent
       .delete(`/api/v1/books/${deleteBook._id}`)
       .then(res => {
         expect(res.body).toEqual(deleteBook);
