@@ -41,7 +41,7 @@ describe('book routes', () => {
     return agent
       .get('/api/v1/books')
       .then(res => {
-        expect(res.body).toEqual(books);
+        expect(res.body).toEqual({ books: books, totalPages: expect.any(Number) });
       });
   });
 
